@@ -293,7 +293,7 @@ INTERPRETATIONS_MONTH = {
 👉 月提醒：累積實力，等待時機。"""
 }
 
-# 舊版單一字典 (為了相容原 GUI 不報錯，保留一份指針)
+# 舊版單一字典 (為了相容性保留一份指針)
 INTERPRETATIONS = INTERPRETATIONS_DAY
 
 # 關係對照表
@@ -366,7 +366,7 @@ def analyze_pair_logic(main_zhi, target_zhi, detailed_xing=False):
     return relations
 
 # ==========================================
-# 2. Web 專用介面類別
+# 2. Web 專用介面類別 (app.py 需要這個)
 # ==========================================
 
 class WebBaziAnalyzer:
