@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template_string
 import traceback
-# 這裡直接引用剛建立好的 crawler_service
-from crawler_service import get_user_pillars, get_today_pillars
+# ★★★ 修改點 1：改用新的 scrape_all_data 函式 ★★★
+from crawler_service import scrape_all_data
 from bazi_calc_v2 import WebBaziAnalyzer, ZHI
 
 app = Flask(__name__)
@@ -173,7 +173,7 @@ INDEX_HTML = f"""
             </form>
         </div>
 
-<div class="intro-section">
+        <div class="intro-section">
             <h3 class="intro-title">這不是算命，這是你的決策系統</h3>
             <p style="max-width: 600px; margin: 0 auto; line-height: 1.8;">
                 傳統命理給你的是一本寫滿吉凶的「宿命帳本」，<br>
@@ -185,7 +185,8 @@ INDEX_HTML = f"""
                 <strong>別讓你的人生，只是一場聽天由命的賭局。</strong>
             </p>
             <p style="margin-top: 2rem; font-size: 0.8rem; color:#999;">© 2025 編碼命運. All rights reserved.</p>
-        </div>    </div>
+        </div>
+    </div>
 
     <div id="loading" class="loading-overlay">
         <div class="spinner"></div>
@@ -351,7 +352,7 @@ RESULT_HTML = f"""
             </div>
         </div>
 
-<div class="strategy-card">
+        <div class="strategy-card">
             <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); letter-spacing: 2px; margin-bottom: 5px;">
                 PREMIUM SERVICE
             </div>
@@ -392,14 +393,24 @@ def index():
 def analyze():
     try:
         data = request.form
-        user_pillars = get_user_pillars(
-            name=data.get('name'), sex_value=data.get('sex'), year_mode_value='1',
-            roc_year=data.get('year'), month=data.get('month'), day=data.get('day'), 
-            hour=data.get('hour'), minute=data.get('minute', 0)
+        
+        # ★★★ 修改點 2：改成一次呼叫 scrape_all_data ★★★
+        # 這會一次抓回所有資料，不用開兩次瀏覽器，大幅提升速度
+        scrape_result = scrape_all_data(
+            name=data.get('name'), 
+            sex_value=data.get('sex'), 
+            roc_year=data.get('year'), 
+            month=data.get('month'), 
+            day=data.get('day'), 
+            hour=data.get('hour'), 
+            minute=data.get('minute', 0)
         )
-        user_day = user_pillars[2][-1]
+        
+        # 從結果中提取資料
+        user_pillars = scrape_result['user_pillars']
+        today_pillars = scrape_result['today_pillars']
 
-        today_pillars = get_today_pillars()
+        user_day = user_pillars[2][-1]
         today_month = today_pillars[1][-1]
         today_day = today_pillars[2][-1]
 
