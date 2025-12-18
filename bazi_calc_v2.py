@@ -1,9 +1,7 @@
-import tkinter as tk
-from tkinter import scrolledtext, messagebox
-import re
-
+# -*- coding: utf-8 -*-
+# 注意：此檔案已移除 tkinter，專供 Render 雲端環境使用
 # ==========================================
-# 1. 解讀資料庫 (共用)
+# 1. 解讀資料庫 (完整保留您的文案)
 # ==========================================
 
 ZHI = list("子丑寅卯辰巳午未申酉戌亥")
@@ -50,8 +48,6 @@ INTERPRETATIONS_DAY = {
 【今日狀態】
 情緒與思緒反覆打轉，自己卡自己。
 
-
-
 👉 建議：
 停止反覆思考同一件事
 行動要簡單、單一
@@ -64,8 +60,8 @@ INTERPRETATIONS_DAY = {
 
 一句核心提醒
 👉 今天不是你不行，是想太多。
-
 """,
+
     "刑 (無恩之刑)": """
 【今日狀態】
 責任感過重，容易覺得「都是我該扛」。
@@ -118,7 +114,6 @@ INTERPRETATIONS_DAY = {
 一句核心提醒
 👉 今天不是你說錯，是太快。""",
 
- 
     "害": """
 【今日狀態】
 隱性消耗日，容易被人事牽動，做完事特別累。
@@ -135,8 +130,6 @@ INTERPRETATIONS_DAY = {
 
 一句核心提醒
 👉 今天保護能量，比完成事情重要。
-
-
 """,
     
     "破": """
@@ -155,7 +148,6 @@ INTERPRETATIONS_DAY = {
 
 一句核心提醒
 👉 今天不是慢，是在避免後悔。
-
 """,
     
     "半合": """
@@ -174,7 +166,6 @@ INTERPRETATIONS_DAY = {
 
 一句核心提醒
 👉 今天是在累積，不是結算。
-
 """,
     
     "無特殊關係": """
@@ -375,7 +366,7 @@ def analyze_pair_logic(main_zhi, target_zhi, detailed_xing=False):
     return relations
 
 # ==========================================
-# 2. Web 專用介面類別 (就是缺了這個!)
+# 2. Web 專用介面類別
 # ==========================================
 
 class WebBaziAnalyzer:
@@ -419,22 +410,3 @@ class WebBaziAnalyzer:
             # 第二層：查 INTERPRETATIONS_MONTH
             "layer2": format_layer(layer2_rels, INTERPRETATIONS_MONTH)
         }
-
-# ==========================================
-# 3. 原始 Tkinter GUI (保留不變)
-# ==========================================
-
-class BaziDayCalcApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("地支運勢關係計算器")
-        self.root.geometry("680x800") 
-        # (這裡省略 GUI 內部實作細節，避免程式碼過長，但重點是上面的 WebBaziAnalyzer 已經補上了)
-        # 如果你還需要跑單機版 GUI，請告知，我再補上這段，但跑 Web 版上面就夠了。
-
-    # (為了避免 app.py 報錯，這裡其實不需要完整 GUI 代碼，只要 WebBaziAnalyzer 存在即可)
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = BaziDayCalcApp(root) # 若這行報錯，先把下面 mainloop 註解掉即可
-    root.mainloop()
