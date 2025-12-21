@@ -1,5 +1,3 @@
-flask
-selenium
-gunicorn
-lunar_python
-webdriver-manager
+Flask==3.0.3
+gunicorn==22.0.0
+lunar_python==1.3.14
