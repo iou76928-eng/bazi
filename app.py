@@ -1,7 +1,27 @@
 from flask import Flask, request, render_template_string
 import traceback
-# ★★★ 修改點 1：改用新的 scrape_all_data 函式 ★★★
-from crawler_service import scrape_all_data
+from datetime import datetime
+try:
+    from zoneinfo import ZoneInfo  # Py3.9+
+except Exception:
+    ZoneInfo = None  # type: ignore
+
+# ✅ 改用「八字.py」本地運算，不再走爬蟲
+#    兼容中文檔名：優先正常 import，失敗則用 importlib 動態載入
+try:
+    import 八字 as bazi_py  # type: ignore
+except Exception:
+    import importlib.util
+    from pathlib import Path
+    _bazi_path = Path(__file__).with_name("八字.py")
+    _spec = importlib.util.spec_from_file_location("bazi_py", _bazi_path)
+    if _spec is None or _spec.loader is None:
+        raise ImportError(f"無法載入八字.py：{_bazi_path}")
+    bazi_py = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(bazi_py)  # type: ignore
+
+calc_bazi_8char = bazi_py.calc_bazi_8char
+
 from bazi_calc_v2 import WebBaziAnalyzer, ZHI
 
 app = Flask(__name__)
@@ -173,7 +193,7 @@ INDEX_HTML = f"""
             </form>
         </div>
 
-        <div class="intro-section">
+<div class="intro-section">
             <h3 class="intro-title">這不是算命，這是你的決策系統</h3>
             <p style="max-width: 600px; margin: 0 auto; line-height: 1.8;">
                 傳統命理給你的是一本寫滿吉凶的「宿命帳本」，<br>
@@ -185,8 +205,7 @@ INDEX_HTML = f"""
                 <strong>別讓你的人生，只是一場聽天由命的賭局。</strong>
             </p>
             <p style="margin-top: 2rem; font-size: 0.8rem; color:#999;">© 2025 編碼命運. All rights reserved.</p>
-        </div>
-    </div>
+        </div>    </div>
 
     <div id="loading" class="loading-overlay">
         <div class="spinner"></div>
@@ -352,7 +371,7 @@ RESULT_HTML = f"""
             </div>
         </div>
 
-        <div class="strategy-card">
+<div class="strategy-card">
             <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); letter-spacing: 2px; margin-bottom: 5px;">
                 PREMIUM SERVICE
             </div>
@@ -393,32 +412,42 @@ def index():
 def analyze():
     try:
         data = request.form
-        
-        # ★★★ 修改點 2：改成一次呼叫 scrape_all_data ★★★
-        # 這會一次抓回所有資料，不用開兩次瀏覽器，大幅提升速度
-        scrape_result = scrape_all_data(
-            name=data.get('name'), 
-            sex_value=data.get('sex'), 
-            roc_year=data.get('year'), 
-            month=data.get('month'), 
-            day=data.get('day'), 
-            hour=data.get('hour'), 
-            minute=data.get('minute', 0)
-        )
-        
-        # 從結果中提取資料
-        user_pillars = scrape_result['user_pillars']
-        today_pillars = scrape_result['today_pillars']
 
-        user_day = user_pillars[2][-1]
-        today_month = today_pillars[1][-1]
-        today_day = today_pillars[2][-1]
+        # 1) 使用者輸入（表單是「民國年」）
+        roc_year = int(data.get('year'))
+        year = roc_year + 1911 if roc_year < 1911 else roc_year
+        month = int(data.get('month'))
+        day = int(data.get('day'))
+        hour = int(data.get('hour'))
+        minute = int(data.get('minute') or 0)
 
+        # 2) 計算「使用者八字」
+        user_bazi = calc_bazi_8char(year, month, day, hour, minute)
+
+        # 3) 計算「今日八字」（以 Asia/Taipei 為準）
+        if ZoneInfo is not None:
+            now = datetime.now(ZoneInfo("Asia/Taipei"))
+        else:
+            now = datetime.now()  # fallback：少數環境沒有 zoneinfo
+        today_bazi = calc_bazi_8char(now.year, now.month, now.day, now.hour, now.minute)
+
+        # 4) 抽取地支：日主地支、今日日支、今日月支
+        user_day = user_bazi.day[-1]
+        today_day = today_bazi.day[-1]
+        today_month = today_bazi.month[-1]
+
+        # 5) 依序丟給 bazi_calc_v2
         if not all(b in ZHI for b in [user_day, today_day, today_month]):
-            raise ValueError("地支解析異常")
+            raise ValueError("地支解析異常（請確認八字輸出是否為「天干地支」兩字組合）")
 
         result = WebBaziAnalyzer.get_analysis_result(user_day, today_day, today_month)
-        result["debug_info"] = {"user_pillars": user_pillars, "today_pillars": today_pillars}
+
+        # debug：保留四柱方便你檢查
+        result["debug_info"] = {
+            "user_pillars": [user_bazi.year, user_bazi.month, user_bazi.day, user_bazi.hour],
+            "today_pillars": [today_bazi.year, today_bazi.month, today_bazi.day, today_bazi.hour],
+            "now_local": now.isoformat(timespec="seconds") if "now" in locals() else None,
+        }
 
         return render_template_string(RESULT_HTML, result=result)
 
@@ -428,7 +457,7 @@ def analyze():
         <div style="font-family:sans-serif; text-align:center; padding-top:50px;">
             <h1 style="color:#c0392b;">⚠️ 分析發生中斷</h1>
             <p>原因：{str(e)}</p>
-            <p>這可能是因為連線逾時，請按上一頁再試一次。</p>
+            <p>請按上一頁修正輸入後再試一次。</p>
             <a href="/" style="display:inline-block; margin-top:20px; padding:10px 20px; background:#5d4037; color:white; text-decoration:none; border-radius:5px;">回首頁</a>
         </div>
         """, 500
