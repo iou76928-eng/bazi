@@ -1,4 +1,5 @@
 flask
 selenium
 gunicorn
+lunar_python
 webdriver-manager
