@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template_string
 import traceback
-from datetime import datetime
+import os
+from datetime import datetime, timedelta
 try:
     from zoneinfo import ZoneInfo  # Py3.9+
 except Exception:
@@ -25,6 +26,20 @@ calc_bazi_8char = bazi_py.calc_bazi_8char
 from bazi_calc_v2 import WebBaziAnalyzer, ZHI
 
 app = Flask(__name__)
+
+
+def now_in_taipei() -> datetime:
+    """Return a 'now' datetime in Asia/Taipei.
+
+    Render (or other minimal containers) might lack IANA tzdata. We try ZoneInfo
+    first and fall back to UTC+8.
+    """
+    if ZoneInfo is not None:
+        try:
+            return datetime.now(ZoneInfo("Asia/Taipei"))
+        except Exception:
+            pass
+    return datetime.utcnow() + timedelta(hours=8)
 
 # ==========================================
 # 🎨 前端設計：CSS 樣式庫 (米黃禪意風)
@@ -424,11 +439,8 @@ def analyze():
         # 2) 計算「使用者八字」
         user_bazi = calc_bazi_8char(year, month, day, hour, minute)
 
-        # 3) 計算「今日八字」（以 Asia/Taipei 為準）
-        if ZoneInfo is not None:
-            now = datetime.now(ZoneInfo("Asia/Taipei"))
-        else:
-            now = datetime.now()  # fallback：少數環境沒有 zoneinfo
+        # 3) 計算「今日八字」（以 Asia/Taipei 為準；若缺 tzdata 則退回 UTC+8）
+        now = now_in_taipei()
         today_bazi = calc_bazi_8char(now.year, now.month, now.day, now.hour, now.minute)
 
         # 4) 抽取地支：日主地支、今日日支、今日月支
@@ -463,4 +475,6 @@ def analyze():
         """, 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    # 本機測試用：Render 會用 gunicorn 啟動，不會走到這裡
+    port = int(os.environ.get("PORT", "5000"))
+    app.run(host="0.0.0.0", port=port, debug=False)
