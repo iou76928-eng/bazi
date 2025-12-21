@@ -1,12 +1,7 @@
 services:
   - type: web
-    name: bazi-analyzer-app
+    name: bazi-web
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
-    buildpacks:
-      - key: https://github.com/render-inc/render-buildpack-chrome
-      - key: python
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    autoDeploy: true
