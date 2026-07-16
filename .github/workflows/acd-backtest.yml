@@ -32,17 +32,8 @@ jobs:
           cache-dependency-path: research/requirements-acd.txt
       - name: Install dependencies
         run: pip install -r research/requirements-acd.txt
-      - name: Run recent GC parameter screen
-        run: python research/acd_backtest.py
       - name: Run multi-year XAUUSD validation
         run: python research/acd_backtest_multiyear.py
-      - name: Upload recent results
-        uses: actions/upload-artifact@v4
-        with:
-          name: acd-backtest-results
-          path: artifacts/
-          if-no-files-found: error
-          retention-days: 14
       - name: Upload multi-year results
         uses: actions/upload-artifact@v4
         with:
