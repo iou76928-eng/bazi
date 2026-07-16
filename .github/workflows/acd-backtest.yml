@@ -6,6 +6,7 @@ on:
       - research/acd-backtest-20260717
     paths:
       - 'research/acd_backtest.py'
+      - 'research/acd_backtest_multiyear.py'
       - 'research/requirements-acd.txt'
       - '.github/workflows/acd-backtest.yml'
   pull_request:
@@ -13,6 +14,7 @@ on:
       - main
     paths:
       - 'research/acd_backtest.py'
+      - 'research/acd_backtest_multiyear.py'
       - 'research/requirements-acd.txt'
       - '.github/workflows/acd-backtest.yml'
   workflow_dispatch:
@@ -20,7 +22,7 @@ on:
 jobs:
   backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,12 +32,21 @@ jobs:
           cache-dependency-path: research/requirements-acd.txt
       - name: Install dependencies
         run: pip install -r research/requirements-acd.txt
-      - name: Run ACD parameter screen
+      - name: Run recent GC parameter screen
         run: python research/acd_backtest.py
-      - name: Upload results
+      - name: Run multi-year XAUUSD validation
+        run: python research/acd_backtest_multiyear.py
+      - name: Upload recent results
         uses: actions/upload-artifact@v4
         with:
           name: acd-backtest-results
           path: artifacts/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload multi-year results
+        uses: actions/upload-artifact@v4
+        with:
+          name: acd-multiyear-results
+          path: artifacts_multiyear/
           if-no-files-found: error
           retention-days: 14
