@@ -9,7 +9,7 @@ import pandas as pd
 
 from acd_backtest import metrics
 from acd_backtest_multiyear import load_xauusd
-from acd_optimize_execution import ExecConfig, backtest, pm
+from acd_execution_fast import ExecConfig, prepare_days, backtest_days, period_metrics
 
 OUT = Path("artifacts_execution_quick")
 OUT.mkdir(exist_ok=True)
@@ -17,6 +17,7 @@ OUT.mkdir(exist_ok=True)
 
 def main():
     intraday, atr = load_xauusd()
+    days = prepare_days(intraday, atr)
     configs = [
         ExecConfig(0.05, em, sm, rr, be, fx)
         for em, sm, rr, be, fx in itertools.product(
@@ -29,11 +30,11 @@ def main():
     ]
     rows = []
     for cfg in configs:
-        trades = backtest(intraday, atr, cfg)
+        trades = backtest_days(days, cfg)
         row = asdict(cfg)
-        row.update({f"disc_{k}": v for k, v in pm(trades, None, 2021).items()})
-        row.update({f"y2022_{k}": v for k, v in pm(trades, 2022, 2022).items()})
-        row.update({f"y2023_{k}": v for k, v in pm(trades, 2023, 2023).items()})
+        row.update({f"disc_{k}": v for k, v in period_metrics(trades, None, 2021).items()})
+        row.update({f"y2022_{k}": v for k, v in period_metrics(trades, 2022, 2022).items()})
+        row.update({f"y2023_{k}": v for k, v in period_metrics(trades, 2023, 2023).items()})
         row.update({f"all_{k}": v for k, v in metrics(trades).items()})
         rows.append(row)
 
