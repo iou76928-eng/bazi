@@ -1,26 +1,6 @@
 name: ACD Shortlist Stress
 
 on:
-  push:
-    branches:
-      - research/acd-backtest-20260717
-    paths:
-      - 'research/acd_stress_shortlist.py'
-      - 'research/acd_optimize_filters.py'
-      - 'research/acd_backtest.py'
-      - 'research/acd_backtest_multiyear.py'
-      - 'research/requirements-acd.txt'
-      - '.github/workflows/acd-shortlist-stress.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'research/acd_stress_shortlist.py'
-      - 'research/acd_optimize_filters.py'
-      - 'research/acd_backtest.py'
-      - 'research/acd_backtest_multiyear.py'
-      - 'research/requirements-acd.txt'
-      - '.github/workflows/acd-shortlist-stress.yml'
   workflow_dispatch:
 
 jobs:
