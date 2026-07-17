@@ -1,22 +1,6 @@
 name: ACD Gold Backtest
 
 on:
-  push:
-    branches:
-      - research/acd-backtest-20260717
-    paths:
-      - 'research/acd_backtest.py'
-      - 'research/acd_backtest_multiyear.py'
-      - 'research/requirements-acd.txt'
-      - '.github/workflows/acd-backtest.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'research/acd_backtest.py'
-      - 'research/acd_backtest_multiyear.py'
-      - 'research/requirements-acd.txt'
-      - '.github/workflows/acd-backtest.yml'
   workflow_dispatch:
 
 jobs:
