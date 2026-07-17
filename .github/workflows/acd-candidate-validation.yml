@@ -1,24 +1,6 @@
 name: ACD Candidate Validation
 
 on:
-  push:
-    branches:
-      - research/acd-backtest-20260717
-    paths:
-      - 'research/acd_validate_candidates.py'
-      - 'research/acd_backtest.py'
-      - 'research/acd_backtest_multiyear.py'
-      - 'research/requirements-acd.txt'
-      - '.github/workflows/acd-candidate-validation.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'research/acd_validate_candidates.py'
-      - 'research/acd_backtest.py'
-      - 'research/acd_backtest_multiyear.py'
-      - 'research/requirements-acd.txt'
-      - '.github/workflows/acd-candidate-validation.yml'
   workflow_dispatch:
 
 jobs:
