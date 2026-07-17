@@ -9,7 +9,7 @@ import pandas as pd
 
 from acd_backtest import metrics
 from acd_backtest_multiyear import load_xauusd
-from acd_execution_fast import ExecConfig, prepare_days, backtest_days, period_metrics
+from acd_execution_fast_v2 import ExecConfig, prepare_days, backtest_days, period_metrics
 
 OUT = Path("artifacts_execution_quick")
 OUT.mkdir(exist_ok=True)
@@ -70,6 +70,7 @@ def main():
         "# ACD Quick Execution Test",
         "",
         "Fixed: Tue-Fri, long only, A=0.05 ATR, EMA200, no C, OR/ATR 0.05-0.35.",
+        "Touch orders use the previous completed bar for EMA eligibility, become active on the next bar, and gap-through fills occur at the open.",
         "",
         "## Top discovery-ranked configurations",
         "",
