@@ -12,6 +12,8 @@ OUT.mkdir(exist_ok=True)
 
 SHORTLIST = [
     dict(name="LONG_1200_OR05_35_noC", cutoff="12:00", enable_c=False, min_or=0.05, max_or=0.35, direction="LONG", weekdays={0,1,2,3,4}),
+    dict(name="LONG_1200_OR05_35_noMon_noC", cutoff="12:00", enable_c=False, min_or=0.05, max_or=0.35, direction="LONG", weekdays={1,2,3,4}),
+    dict(name="LONG_1200_OR05_35_TueThu_noC", cutoff="12:00", enable_c=False, min_or=0.05, max_or=0.35, direction="LONG", weekdays={1,2,3}),
     dict(name="LONG_1100_OR05_35_noC", cutoff="11:00", enable_c=False, min_or=0.05, max_or=0.35, direction="LONG", weekdays={0,1,2,3,4}),
     dict(name="BOTH_1200_OR08_35_noFri_noC", cutoff="12:00", enable_c=False, min_or=0.08, max_or=0.35, direction="BOTH", weekdays={0,1,2,3}),
     dict(name="LONG_1200_OR05_25_withC", cutoff="12:00", enable_c=True, min_or=0.05, max_or=0.25, direction="LONG", weekdays={0,1,2,3,4}),
