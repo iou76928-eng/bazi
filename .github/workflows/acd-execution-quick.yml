@@ -6,22 +6,20 @@ on:
       - research/acd-backtest-20260717
     paths:
       - 'research/acd_optimize_execution_quick.py'
-      - 'research/acd_optimize_execution.py'
-      - 'research/acd_backtest.py'
-      - 'research/acd_backtest_multiyear.py'
-      - 'research/requirements-acd.txt'
+      - 'research/acd_execution_fast.py'
       - '.github/workflows/acd-execution-quick.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'research/acd_optimize_execution_quick.py'
-      - 'research/acd_optimize_execution.py'
-      - 'research/acd_backtest.py'
-      - 'research/acd_backtest_multiyear.py'
-      - 'research/requirements-acd.txt'
+      - 'research/acd_execution_fast.py'
       - '.github/workflows/acd-execution-quick.yml'
   workflow_dispatch:
+
+concurrency:
+  group: acd-execution-quick
+  cancel-in-progress: true
 
 jobs:
   quick:
