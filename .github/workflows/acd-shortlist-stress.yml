@@ -1,0 +1,27 @@
+name: ACD Shortlist Stress
+
+on:
+  workflow_dispatch:
+
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: research/requirements-acd.txt
+      - name: Install dependencies
+        run: pip install -r research/requirements-acd.txt
+      - name: Run shortlist cost stress
+        run: python research/acd_stress_shortlist.py
+      - name: Upload shortlist results
+        uses: actions/upload-artifact@v4
+        with:
+          name: acd-shortlist-stress-results
+          path: artifacts_shortlist/
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,45 @@
+name: ACD Execution Quick
+
+on:
+  push:
+    branches:
+      - research/acd-backtest-20260717
+    paths:
+      - 'research/acd_optimize_execution_quick.py'
+      - 'research/acd_execution_fast.py'
+      - '.github/workflows/acd-execution-quick.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'research/acd_optimize_execution_quick.py'
+      - 'research/acd_execution_fast.py'
+      - '.github/workflows/acd-execution-quick.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: acd-execution-quick
+  cancel-in-progress: true
+
+jobs:
+  quick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: research/requirements-acd.txt
+      - name: Install dependencies
+        run: pip install -r research/requirements-acd.txt
+      - name: Run quick execution test
+        run: python research/acd_optimize_execution_quick.py
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: acd-execution-quick-results
+          path: artifacts_execution_quick/
+          if-no-files-found: error
+          retention-days: 14
